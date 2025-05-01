@@ -1,5 +1,50 @@
 import React, { useState, useEffect, useRef } from 'react';
+import Box from '@mui/material/Box';
+import Paper from '@mui/material/Paper';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
+import { styled } from '@mui/material/styles';
 import { useApp } from '../context/AppContext';
+
+const ConsoleContainer = styled(Paper)(({ theme }) => ({
+  position: 'fixed',
+  bottom: 0,
+  left: 0,
+  width: '100%',
+  zIndex: 50,
+  borderTop: `1px solid ${theme.palette.divider}`,
+  borderRadius: 0
+}));
+
+const ConsoleHeader = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  justifyContent: 'space-between',
+  padding: theme.spacing(0.5, 1),
+  backgroundColor: theme.palette.grey[100],
+  borderBottom: `1px solid ${theme.palette.divider}`
+}));
+
+const ConsoleContent = styled(Box)(({ theme }) => ({
+  height: '150px',
+  overflowY: 'auto',
+  padding: theme.spacing(1),
+  fontFamily: 'monospace',
+  fontSize: '0.75rem'
+}));
+
+const ConsoleToggleButton = styled(Button)(({ theme }) => ({
+  position: 'fixed',
+  bottom: 0,
+  right: 0,
+  fontSize: '0.75rem',
+  padding: theme.spacing(0.5, 1),
+  backgroundColor: theme.palette.grey[100],
+  borderRadius: 0,
+  borderTop: `1px solid ${theme.palette.divider}`,
+  borderLeft: `1px solid ${theme.palette.divider}`,
+  textTransform: 'none',
+  minWidth: 'auto'
+}));
 
 const Console = () => {
   const { consoleEnabled, consoleVisible, toggleConsoleVisibility } = useApp();
@@ -71,44 +116,62 @@ const Console = () => {
     });
   };
 
+  // Helper to get color based on log type
+  const getLogColor = (type) => {
+    switch(type) {
+      case 'error': return 'error.main';
+      case 'warn': return 'warning.main';
+      case 'info': return 'info.main';
+      default: return 'text.primary';
+    }
+  };
+
   return (
     <>
       {consoleVisible ? (
-        <div className="console-container">
-          <div className="console-header">
-            <button 
+        <ConsoleContainer elevation={3}>
+          <ConsoleHeader>
+            <Button 
               onClick={clearLogs} 
-              className="console-btn"
+              size="small" 
+              variant="text"
             >
               Clear
-            </button>
-            <button 
+            </Button>
+            <Button 
               onClick={toggleConsoleVisibility} 
-              className="console-btn"
+              size="small"
+              variant="text"
             >
               Hide
-            </button>
-          </div>
-          <div
+            </Button>
+          </ConsoleHeader>
+          <ConsoleContent
             ref={consoleRef}
-            className="console-content"
           >
             {logs.map((log, index) => (
-              <div key={index} className={`console-log console-type-${log.type}`}>
-                <span className="console-time">{log.time}</span>
-                <span className="console-type">[{log.type}]</span>
-                {formatLogContent(log.content)}
-              </div>
+              <Box key={index} sx={{ mb: 0.5 }}>
+                <Typography component="span" variant="caption" color="text.secondary" sx={{ mr: 1 }}>
+                  {log.time}
+                </Typography>
+                <Typography component="span" variant="caption" sx={{ mr: 1, color: getLogColor(log.type) }}>
+                  [{log.type}]
+                </Typography>
+                <Typography component="span" variant="caption">
+                  {formatLogContent(log.content)}
+                </Typography>
+              </Box>
             ))}
-          </div>
-        </div>
+          </ConsoleContent>
+        </ConsoleContainer>
       ) : (
-        <button
+        <ConsoleToggleButton
           onClick={toggleConsoleVisibility}
-          className="console-toggle-btn"
+          variant="outlined"
+          size="small"
         >
           Show Console
-        </button>
+        </ConsoleToggleButton>
       )}
     </>
   );

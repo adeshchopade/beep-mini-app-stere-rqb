@@ -1,4 +1,7 @@
 import React from 'react';
+import { ThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import theme from './styles/theme';
 import { useApp } from './context/AppContext';
 import HomePage from './pages/HomePage';
 import SecondPage from './pages/SecondPage';
@@ -21,13 +24,16 @@ const App = () => {
   };
 
   return (
-    <div className={`${consoleVisible ? 'pb-[250px]' : ''}`}>
-      {/* Main content */}
-      {renderPage()}
-      
-      {/* Debug Console */}
-      <Console />
-    </div>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <div className={`${consoleVisible ? 'pb-[250px]' : ''}`}>
+        {/* Main content */}
+        {renderPage()}
+        
+        {/* Debug Console */}
+        <Console />
+      </div>
+    </ThemeProvider>
   );
 };
 
