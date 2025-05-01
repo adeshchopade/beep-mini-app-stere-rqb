@@ -6,11 +6,12 @@ import Typography from '@mui/material/Typography';
 import { styled } from '@mui/material/styles';
 import { useApp } from '../context/AppContext';
 
-const ConsoleContainer = styled(Paper)(({ theme }) => ({
+const ConsoleContainer = styled(Paper)(({ theme, fullscreen }) => ({
   position: 'fixed',
   bottom: 0,
   left: 0,
   width: '100%',
+  height: fullscreen ? '100vh' : '200px',
   zIndex: 50,
   borderTop: `1px solid ${theme.palette.divider}`,
   borderRadius: 0
@@ -24,8 +25,8 @@ const ConsoleHeader = styled(Box)(({ theme }) => ({
   borderBottom: `1px solid ${theme.palette.divider}`
 }));
 
-const ConsoleContent = styled(Box)(({ theme }) => ({
-  height: '150px',
+const ConsoleContent = styled(Box)(({ theme, fullscreen }) => ({
+  height: fullscreen ? 'calc(100vh - 40px)' : 'calc(200px - 40px)',
   overflowY: 'auto',
   padding: theme.spacing(1),
   fontFamily: 'monospace',
@@ -49,6 +50,7 @@ const ConsoleToggleButton = styled(Button)(({ theme }) => ({
 const Console = () => {
   const { consoleEnabled, consoleVisible, toggleConsoleVisibility } = useApp();
   const [logs, setLogs] = useState([]);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const consoleRef = useRef(null);
 
   useEffect(() => {
@@ -103,6 +105,10 @@ const Console = () => {
     setLogs([]);
   };
 
+  const toggleFullScreen = () => {
+    setIsFullscreen(prev => !prev);
+  };
+
   const formatLogContent = (content) => {
     return content.map((item, index) => {
       if (typeof item === 'object') {
@@ -129,14 +135,21 @@ const Console = () => {
   return (
     <>
       {consoleVisible ? (
-        <ConsoleContainer elevation={3}>
+        <ConsoleContainer elevation={3} fullscreen={isFullscreen}>
           <ConsoleHeader>
-            <Button 
+          <Button 
               onClick={clearLogs} 
               size="small" 
               variant="text"
             >
               Clear
+            </Button>
+            <Button 
+              onClick={toggleFullScreen} 
+              size="small" 
+              variant="text"
+            >
+              {isFullscreen ? 'Compact view' : 'Full screen'}
             </Button>
             <Button 
               onClick={toggleConsoleVisibility} 
@@ -148,6 +161,7 @@ const Console = () => {
           </ConsoleHeader>
           <ConsoleContent
             ref={consoleRef}
+            fullscreen={isFullscreen}
           >
             {logs.map((log, index) => (
               <Box key={index} sx={{ mb: 0.5 }}>
