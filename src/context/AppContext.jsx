@@ -7,10 +7,12 @@ export const AppProvider = ({ children }) => {
 	// Keep console enabled always but control visibility separately
 	const [consoleEnabled] = useState(true);
 	const [consoleVisible, setConsoleVisible] = useState(false);
+	const [pageParams, setPageParams] = useState({});
 
-	const navigateTo = (pageName) => {
-		console.log(`Navigating to ${pageName}`);
+	const navigateTo = (pageName, params = {}) => {
+		console.log(`Navigating to ${pageName}`, params);
 		setPage(pageName);
+		setPageParams(params);
 	};
 
 	const toggleConsoleVisibility = () => {
@@ -25,6 +27,7 @@ export const AppProvider = ({ children }) => {
 				consoleEnabled,
 				consoleVisible,
 				toggleConsoleVisibility,
+				pageParams,
 			}}
 		>
 			{children}

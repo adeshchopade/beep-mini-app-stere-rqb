@@ -84,16 +84,15 @@ beep-mini-app/
 ├── src/
 │   ├── components/                 # Reusable UI components
 │   │   ├── BeepDemo.jsx            # Beep SDK integration demo
-│   │   ├── Button.jsx              # Button component
 │   │   ├── Console.jsx             # Debug console component
 │   ├── context/                    # React context for state management
 │   │   ├── AppContext.jsx          # App state context
-│   │   └── BeepContext.jsx         # Beep SDK context
 │   ├── pages/                      # Page components
 │   │   ├── HomePage.jsx            # Home page
 │   │   └── SecondPage.jsx          # Second page
 │   ├── styles/                     # CSS styles
 │   │   └── index.css               # Main CSS with Tailwind directives
+│   │   └── theme.js                # MUI theme configuration
 │   ├── utils/                      # Utility modules
 │   │   ├── beepSDK.js              # Beep SDK wrapper
 │   │   └── env.js                  # Environment variables utility
@@ -118,69 +117,6 @@ The app integrates with the Beep super app SDK through a React context wrapper. 
 - Handles WebView detection and initialization
 - Provides debug mode and fallbacks for browser development
 - Exposes user data and SDK methods via React context
-
-The BeepContext provides:
-- User information access
-- Card information access
-- Dialog and UI control methods
-- Automatic SDK initialization
-
-### Example Usage
-
-Simple component using the Beep SDK:
-
-```jsx
-import React, { useEffect } from 'react';
-import { useBeep } from '../context/BeepContext';
-
-function UserProfile() {
-  const { isReady, user, fetchUser, showDialog } = useBeep();
-  
-  // Fetch user data when SDK is ready
-  useEffect(() => {
-    if (isReady) {
-      fetchUser();
-    }
-  }, [isReady, fetchUser]);
-  
-  // Display dialog with user info
-  const handleShowUserInfo = () => {
-    if (user) {
-      showDialog(
-        'User Information',
-        `ID: ${user.id}\nName: ${user.firstName} ${user.lastName}\nEmail: ${user.email}`,
-        'OK',
-        null,
-        null,
-        null
-      );
-    }
-  };
-  
-  return (
-    <div className="p-4">
-      <h2 className="text-lg font-bold mb-2">User Profile</h2>
-      
-      {!isReady && <p>Loading SDK...</p>}
-      
-      {isReady && !user && <p>User data not loaded</p>}
-      
-      {user && (
-        <div className="bg-gray-100 p-3 rounded">
-          <p>Welcome, {user.firstName}!</p>
-          <p>Email: {user.email}</p>
-          <button 
-            className="bg-blue-500 text-white px-4 py-2 rounded mt-2"
-            onClick={handleShowUserInfo}
-          >
-            Show All Info
-          </button>
-        </div>
-      )}
-    </div>
-  );
-}
-```
 
 ## On-Screen Console
 

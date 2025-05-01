@@ -1,106 +1,100 @@
-import React, { useEffect, useState } from "react";
+import React, { createContext, useState, useContext, useEffect, useCallback, useRef } from "react";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
-import { useBeep } from "../context/BeepContext";
 import ENV from "../utils/env";
+import MiniApp, { beep } from "../utils/beepSDK";
 
 const BeepDemo = () => {
-	const { isReady, user, cards, fetchUser, fetchCards, showDialog, setActionButton, setAppBarTitle, closeMiniApp, appName } = useBeep();
-
-	// Manual debug check
-	const debugModeFromEnv = process.env.REACT_APP_DEBUG_MODE === "true";
-	console.log("Manual conversion result:", debugModeFromEnv);
+	const [user, setUser] = useState(null);
+	const [cards, setCards] = useState(null);
 
 	// Setup the UI once when the app is ready
 	// The flags in BeepContext will prevent multiple calls
 	useEffect(() => {
-		if (isReady) {
-			console.log("BeepDemo: SDK is ready, setting up UI");
-			// Setup action button
-			setActionButton("Done", () => {
-				showDialog("BeepMiniApp", "Do you want to close the mini app?", "Yes", "No", closeMiniApp, () => console.log("Dialog dismissed"));
-			});
-
-			// Set app bar title
-			setAppBarTitle(appName);
-
-			// Fetch user data
-			fetchUser();
-		} else {
-			console.log("BeepDemo: SDK is not ready yet, waiting...");
-		}
-	}, [isReady, setActionButton, setAppBarTitle, fetchUser, closeMiniApp, showDialog, appName]);
+		// Fetch user data
+		fetchUser();
+	}, [fetchUser]);
 
 	const handleGetCards = () => {
 		fetchCards();
 	};
 
-	// Helper function to manually force the SDK ready state for debugging
-	const forceSDKReady = () => {
-		console.log("BeepDemo: Manually forcing SDK ready state");
-		// Try to access the window.miniAppInstance that might be set in BeepContext
-		if (window.miniAppInstance && typeof window.miniAppInstance.manuallyTriggerReady === "function") {
-			window.miniAppInstance.manuallyTriggerReady();
-			console.log("BeepDemo: Called manuallyTriggerReady on miniAppInstance");
-		} else {
-			console.warn("BeepDemo: No miniAppInstance found on window, can't manually trigger ready event");
+	// Method to fetch user data
+	const fetchUser = useCallback(() => {
+		console.log("BeepContext: Fetching user data");
 
-			// Try to force flutter_inappwebview setup if it exists
-			if (typeof window.flutter_inappwebview !== "undefined") {
-				console.log("BeepDemo: window.flutter_inappwebview exists, trying to dispatch event manually");
-
-				// Create and dispatch a manual event
-				try {
-					const readyEvent = new Event("flutterInAppWebViewPlatformReady");
-					window.dispatchEvent(readyEvent);
-					console.log("BeepDemo: Manually dispatched flutterInAppWebViewPlatformReady event");
-				} catch (error) {
-					console.error("BeepDemo: Error dispatching manual event:", error);
-				}
-			} else {
-				console.error("BeepDemo: window.flutter_inappwebview is not defined, can't proceed with SDK initialization");
-			}
+		if (typeof window.flutter_inappwebview === "undefined") {
+			console.log("BeepContext: Using mock user data for browser testing");
+			// Mock data for browser testing
+			setUser({
+				id: 1403,
+				firstName: "Test",
+				lastName: null,
+				phoneNumber: null,
+				email: "user@test.com",
+			});
+			return;
 		}
-	};
+
+		try {
+			console.log("BeepContext: Calling flutter_inappwebview.callHandler('getUser')");
+			beep.getUser({
+				onSuccess: (userData) => {
+					setUser(userData);
+					console.log("BeepContext: User data fetched successfully:", userData);
+				},
+				onFail: (error) => {
+					console.error("BeepContext: Failed to fetch user:", error);
+				},
+			});
+		} catch (error) {
+			console.error("BeepContext: Exception when calling getUser:", error);
+		}
+	}, []);
+
+	// Method to fetch cards data
+	const fetchCards = useCallback(() => {
+		console.log("BeepContext: Fetching cards data");
+
+		if (typeof window.flutter_inappwebview === "undefined") {
+			console.log("BeepContext: Using mock cards data for browser testing");
+			// Mock data for browser testing
+			setCards({
+				cards: [
+					{
+						can: "6378059900462120",
+						expiry: "2024-12-31 00:00:00.000Z",
+						status: "ACTIVE",
+						balance: 6197.49,
+					},
+				],
+			});
+			return;
+		}
+
+		try {
+			console.log("BeepContext: Calling flutter_inappwebview.callHandler('getCards')");
+			beep.getCards({
+				onSuccess: (cardsData) => {
+					setCards(cardsData);
+					console.log("BeepContext: Cards data fetched successfully:", cardsData);
+				},
+				onFail: (error) => {
+					console.error("BeepContext: Failed to fetch cards:", error);
+				},
+			});
+		} catch (error) {
+			console.error("BeepContext: Exception when calling getCards:", error);
+		}
+	}, []);
 
 	return (
 		<Card elevation={0}>
 			<CardContent>
-				<Box sx={{ mb: 2 }}>
-					<Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-						SDK Status:
-						<Box
-							component="span"
-							sx={{
-								ml: 1,
-								fontWeight: "medium",
-								color: isReady ? "success.main" : "error.main",
-							}}
-						>
-							{isReady ? "Ready" : "Not Ready"}
-						</Box>
-					</Typography>
-
-					{!isReady && (
-						<Button 
-							onClick={() => {
-								console.log("Button clicked: Force SDK Ready (Debug)");
-								forceSDKReady();
-							}} 
-							variant="contained" 
-							color="error" 
-							size="small" 
-							sx={{ mt: 1, m: 1 }}
-						>
-							Force SDK Ready (Debug)
-						</Button>
-					)}
-				</Box>
-
 				<Card variant="outlined" sx={{ mb: 2, bgcolor: "grey.50" }}>
 					<CardContent>
 						<Typography variant="body2" component="div" sx={{ fontFamily: "monospace", fontSize: "0.75rem" }}>
@@ -149,37 +143,17 @@ const BeepDemo = () => {
 				)}
 
 				<Stack spacing={1} direction="column">
-					<Button 
+					<Button
 						onClick={() => {
 							console.log("Button clicked: Get Cards");
 							handleGetCards();
-						}} 
-						variant="contained" 
-						color="primary" 
+						}}
+						variant="contained"
+						color="primary"
 						fullWidth
 						sx={{ m: 1 }}
 					>
 						Get Cards
-					</Button>
-
-					<Button
-						onClick={() => {
-							console.log("Button clicked: Show Dialog");
-							showDialog(
-								"BeepMiniApp",
-								"This is a sample dialog from the BeepMiniApp SDK",
-								"OK",
-								"Cancel",
-								() => console.log("Dialog confirmed"),
-								() => console.log("Dialog dismissed")
-							);
-						}}
-						variant="contained"
-						color="secondary"
-						fullWidth
-						sx={{ m: 1 }}
-					>
-						Show Dialog
 					</Button>
 				</Stack>
 			</CardContent>
