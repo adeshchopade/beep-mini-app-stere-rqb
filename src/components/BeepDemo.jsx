@@ -7,19 +7,25 @@ import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
 import ENV from "../utils/env";
 // Import from wrapper instead of direct SDK
-import { beepSDK, getMiniApp } from "../utils/beepSDKWrapper";
+import { beepSDK, getMiniApp, isBrowserEnvironment } from "../utils/beepSDKWrapper";
 
 const BeepDemo = () => {
 	const [user, setUser] = useState(null);
 	const [cards, setCards] = useState(null);
 	const [referenceNumber, setReferenceNumber] = useState(null);
+	const [referenceNumberError, setReferenceNumberError] = useState(null);
 	const [paymentResponse, setPaymentResponse] = useState(null);
 	const [httpResponse, setHttpResponse] = useState(null);
+	const [httpError, setHttpError] = useState(null);
 	const [contactSelected, setContactSelected] = useState(null);
 	const [dateSelected, setDateSelected] = useState(null);
+	const [isInBrowser, setIsInBrowser] = useState(false);
 
 	// Setup the UI once when the app is ready
 	useEffect(() => {
+		// Check if we're in browser environment
+		setIsInBrowser(isBrowserEnvironment());
+
 		// Initialize app with proper MiniApp implementation
 		const MiniAppImpl = getMiniApp();
 		new MiniAppImpl({
@@ -73,9 +79,13 @@ const BeepDemo = () => {
 	// Method to request reference number
 	const handleRequestReferenceNumber = useCallback(() => {
 		console.log("BeepDemo: Requesting reference number");
+		
+		// Reset previous errors or success
+		setReferenceNumber(null);
+		setReferenceNumberError(null);
 
 		beepSDK.requestReferenceNumber({
-			merchantCode: "TESTMERCHANT",
+			merchantCode: "M-04282025-000003528",
 			product: "Test Product",
 			amount: 100,
 			notifyUrl: "https://example.com/notify",
@@ -84,6 +94,7 @@ const BeepDemo = () => {
 				console.log("BeepDemo: Reference number received:", response);
 			},
 			onFail: (error) => {
+				setReferenceNumberError(error);
 				console.error("BeepDemo: Failed to get reference number:", error);
 			}
 		});
@@ -126,18 +137,78 @@ const BeepDemo = () => {
 	// Method to test HTTP request
 	const handleHttpRequest = useCallback(() => {
 		console.log("BeepDemo: Making HTTP request");
+		
+		// Reset previous response or error
+		setHttpResponse(null);
+		setHttpError(null);
 
+		// Using the same format as the app developer's example
+		beepSDK.showLoading({
+			onSuccess: () => {
+				console.log("BeepDemo: Loading shown for HTTP request");
+				
+				beepSDK.httpRequest({
+					method: "GET",
+					baseUrl: "jsonplaceholder.typicode.com", // No https:// prefix, matching app developer's example
+					path: "/users",
+					onSuccess: (response) => {
+						setHttpResponse(response);
+						console.log("BeepDemo: HTTP response received:", response);
+						
+						// Parse JSON body if available
+						if (response.body) {
+							try {
+								const parsedBody = JSON.parse(response.body);
+								console.log("BeepDemo: Parsed response body:", parsedBody);
+							} catch (e) {
+								console.error("BeepDemo: Failed to parse response body:", e);
+							}
+						}
+						
+						beepSDK.hideLoading({
+							onSuccess: () => {
+								console.log("BeepDemo: Loading hidden after HTTP request");
+							}
+						});
+					},
+					onFail: (error) => {
+						setHttpError(error);
+						console.error("BeepDemo: HTTP request failed", error);
+						
+						beepSDK.hideLoading({
+							onSuccess: () => {
+								console.log("BeepDemo: Loading hidden after HTTP request error");
+							}
+						});
+					}
+				});
+			}
+		});
+	}, []);
+
+	// Method to test HTTP request with different URL/path
+	const handleAlternativeHttpRequest = useCallback(() => {
+		console.log("BeepDemo: Making HTTP request with different URL");
+		
+		// Reset previous response or error
+		setHttpResponse(null);
+		setHttpError(null);
+
+		beepSDK.showLoading();
 		beepSDK.httpRequest({
 			method: "GET",
-			baseUrl: "https://jsonplaceholder.typicode.com",
+			baseUrl: "jsonplaceholder.typicode.com",
 			path: "/posts/1",
-			onSuccess: (response) => {
-				setHttpResponse(response);
-				console.log("BeepDemo: HTTP response received:", response);
+			onSuccess: function (resp) {
+				console.log(resp.statusCode + " " + resp.body);
+				setHttpResponse(resp);
+				beepSDK.hideLoading();
 			},
-			onFail: () => {
-				console.error("BeepDemo: HTTP request failed");
-			}
+			onFail: function (resp) {
+				console.log(resp.statusCode + " " + resp.errorMessage);
+				setHttpError(resp);
+				beepSDK.hideLoading();
+			},
 		});
 	}, []);
 
@@ -209,6 +280,18 @@ const BeepDemo = () => {
 		beepSDK.closeMiniApp();
 	}, []);
 
+	// Method to simulate lifecycle events (only in browser)
+	const handleSimulateResume = useCallback(() => {
+		if (window.mockTriggerActionButton) {
+			window.mockTriggerActionButton();
+		}
+
+		// Access MiniAppMock directly when in browser for testing
+		if (isInBrowser && window._miniAppMockInstance) {
+			window._miniAppMockInstance.simulateResume();
+		}
+	}, [isInBrowser]);
+
 	return (
 		<Card elevation={0}>
 			<CardContent>
@@ -218,7 +301,7 @@ const BeepDemo = () => {
 							<Box component="p">BEEP API URL: {ENV.BEEP_API_URL}</Box>
 							<Box component="p">Debug Mode: {String(ENV.DEBUG_MODE)}</Box>
 							<Box component="p">REACT_APP_ENVIRONMENT: {ENV.ENVIRONMENT}</Box>
-							<Box component="p">Is Mock: {String(typeof window !== 'undefined' && typeof window.flutter_inappwebview === 'undefined')}</Box>
+							<Box component="p">Is Mock: {String(isInBrowser)}</Box>
 						</Typography>
 					</CardContent>
 				</Card>
@@ -231,9 +314,9 @@ const BeepDemo = () => {
 							</Typography>
 							<Typography variant="body2">ID: {user.id}</Typography>
 							<Typography variant="body2">
-								Name: {user.firstName} {user.lastName}
+								Name: {user.firstName || "N/A"} {user.lastName || ""}
 							</Typography>
-							<Typography variant="body2">Email: {user.email}</Typography>
+							<Typography variant="body2">Email: {user.email || "N/A"}</Typography>
 							{user.phoneNumber && (
 								<Typography variant="body2">Phone: {user.phoneNumber}</Typography>
 							)}
@@ -263,6 +346,22 @@ const BeepDemo = () => {
 					</Card>
 				)}
 
+				{referenceNumberError && (
+					<Card variant="outlined" sx={{ mb: 2, bgcolor: "error.light" }}>
+						<CardContent>
+							<Typography variant="subtitle2" sx={{ mb: 1 }}>
+								Reference Number Error
+							</Typography>
+							<Typography variant="body2">
+								Code: {referenceNumberError.error?.code}
+							</Typography>
+							<Typography variant="body2">
+								Message: {referenceNumberError.error?.errorMessage}
+							</Typography>
+						</CardContent>
+					</Card>
+				)}
+
 				{referenceNumber && (
 					<Card variant="outlined" sx={{ mb: 2, bgcolor: "grey.50" }}>
 						<CardContent>
@@ -286,6 +385,18 @@ const BeepDemo = () => {
 							{paymentResponse.transactionId && (
 								<Typography variant="body2">Transaction ID: {paymentResponse.transactionId}</Typography>
 							)}
+						</CardContent>
+					</Card>
+				)}
+
+				{httpError && (
+					<Card variant="outlined" sx={{ mb: 2, bgcolor: "error.light" }}>
+						<CardContent>
+							<Typography variant="subtitle2" sx={{ mb: 1 }}>
+								HTTP Error
+							</Typography>
+							<Typography variant="body2">Code: {httpError.code}</Typography>
+							<Typography variant="body2">Message: {httpError.errorMessage}</Typography>
 						</CardContent>
 					</Card>
 				)}
@@ -364,7 +475,7 @@ const BeepDemo = () => {
 						color="primary"
 						fullWidth
 						sx={{ m: 1 }}
-						disabled={!referenceNumber}
+						disabled={!referenceNumber && !isInBrowser}
 					>
 						Request Payment
 					</Button>
@@ -387,6 +498,16 @@ const BeepDemo = () => {
 						sx={{ m: 1 }}
 					>
 						Test HTTP Request
+					</Button>
+
+					<Button
+						onClick={handleAlternativeHttpRequest}
+						variant="contained"
+						color="primary"
+						fullWidth
+						sx={{ m: 1 }}
+					>
+						Test Alternative HTTP Request
 					</Button>
 
 					<Button
@@ -428,6 +549,18 @@ const BeepDemo = () => {
 					>
 						Set App Bar Title
 					</Button>
+
+					{isInBrowser && (
+						<Button
+							onClick={handleSimulateResume}
+							variant="contained"
+							color="warning"
+							fullWidth
+							sx={{ m: 1 }}
+						>
+							Simulate Resume Event
+						</Button>
+					)}
 
 					<Button
 						onClick={handleCloseMiniApp}

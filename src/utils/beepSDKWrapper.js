@@ -37,7 +37,19 @@ export const getImplementation = (methodName) => {
 export const getMiniApp = () => {
   if (isBrowserEnvironment()) {
     console.log('Using mock MiniApp class');
-    return MiniAppMock;
+    
+    // Return a wrapped version of MiniAppMock that stores the instance globally
+    // for easier testing and event simulation
+    return function(options) {
+      const instance = new MiniAppMock(options);
+      
+      // Store instance in window for testing access
+      if (typeof window !== 'undefined') {
+        window._miniAppMockInstance = instance;
+      }
+      
+      return instance;
+    };
   } else {
     console.log('Using real MiniApp class');
     return MiniApp;
