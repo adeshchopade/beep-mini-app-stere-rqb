@@ -1,0 +1,110 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global styles */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Button styles */
+.btn {
+  @apply px-4 py-2 rounded-md font-medium text-base cursor-pointer m-2 transition-colors outline-none;
+}
+
+.btn-primary {
+  @apply bg-blue-500 text-white hover:bg-blue-600;
+}
+
+.btn-secondary {
+  @apply bg-gray-500 text-white hover:bg-gray-600;
+}
+
+.btn-success {
+  @apply bg-green-500 text-white hover:bg-green-600;
+}
+
+.btn-danger {
+  @apply bg-red-500 text-white hover:bg-red-600;
+}
+
+.btn-disabled {
+  @apply bg-gray-300 text-gray-500 cursor-not-allowed hover:bg-gray-300;
+}
+
+/* Console styles */
+.console-container {
+  @apply fixed bottom-0 left-0 w-full bg-gray-100 border-t border-gray-300 z-50;
+}
+
+.console-header {
+  @apply flex justify-between px-2 py-1 bg-gray-200 border-b border-gray-300;
+}
+
+.console-btn {
+  @apply text-xs py-1 px-2;
+}
+
+.console-content {
+  @apply h-[150px] overflow-y-auto p-2 text-xs font-mono;
+}
+
+.console-toggle-btn {
+  @apply fixed bottom-0 right-0 text-xs py-1 px-2 bg-gray-200 border border-gray-300 border-b-0 border-r-0;
+}
+
+.console-log {
+  @apply mb-1;
+}
+
+.console-time {
+  @apply text-gray-500 mr-2;
+}
+
+.console-type {
+  @apply mr-2;
+}
+
+.console-type-error {
+  @apply text-red-500;
+}
+
+.console-type-warn {
+  @apply text-orange-500;
+}
+
+.console-type-info {
+  @apply text-blue-500;
+}
+
+/* Page layout */
+.page-container {
+  @apply p-5 flex flex-col items-center max-w-[600px] mx-auto;
+}
+
+.page-title {
+  @apply text-2xl font-bold mb-4;
+}
+
+.page-description {
+  @apply mb-4 text-center;
+}
+
+.button-group {
+  @apply my-5 flex flex-wrap justify-center;
+}
+
+.features-container {
+  @apply mt-5 text-center;
+}
+
+.test-button {
+  @apply px-4 py-2 bg-gray-500 text-white rounded cursor-pointer border-none;
+} 
