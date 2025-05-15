@@ -41,10 +41,16 @@ export const useBeepCards = (initialState = {}) => {
                   applicant_first_name: "",
                   applicant_last_name: "",
                   applicant_mobile: "",
-                  applicant_email_address: userData.email || "",
+                  applicant_email_address:"",
                   applicant_dob: "",
                 };
               });
+
+              // For the first card, set the first_name, last_name, mobile, email_address
+              initialFormData[cards[0].can].applicant_first_name = userData.firstName || "";
+              initialFormData[cards[0].can].applicant_last_name = userData.lastName || "";
+              initialFormData[cards[0].can].applicant_mobile = userData.phoneNumber || "";
+              initialFormData[cards[0].can].applicant_email_address = userData.email || "";
 
               setFormData(initialFormData);
               setCards(cards);
