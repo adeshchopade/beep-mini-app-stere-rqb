@@ -17,7 +17,6 @@ const BeepDemo = () => {
 	const [paymentResponse, setPaymentResponse] = useState(null);
 	const [httpResponse, setHttpResponse] = useState(null);
 	const [httpError, setHttpError] = useState(null);
-	const [contactSelected, setContactSelected] = useState(null);
 	const [dateSelected, setDateSelected] = useState(null);
 	const [isInBrowser, setIsInBrowser] = useState(false);
 
@@ -85,7 +84,7 @@ const BeepDemo = () => {
 		setReferenceNumberError(null);
 
 		beepSDK.requestReferenceNumber({
-			merchantCode: "M-04282025-000003528",
+			merchantCode: ENV.BEEP_MERCHANT_CODE,
 			product: "Test Product",
 			amount: 100,
 			notifyUrl: "https://example.com/notify",
@@ -107,7 +106,7 @@ const BeepDemo = () => {
 		beepSDK.requestPayment({
 			type: "CHECKOUT",
 			amount: 100,
-			processingFee: 0,
+			processingFee: referenceNumber?.processingFee || 0,
 			referenceNumber: referenceNumber?.referenceNumber || "REF-TEST-12345",
 			onSuccess: (response) => {
 				setPaymentResponse(response);
@@ -212,20 +211,6 @@ const BeepDemo = () => {
 		});
 	}, []);
 
-	// Method to choose phone from contact
-	const handleChoosePhoneFromContact = useCallback(() => {
-		console.log("BeepDemo: Choosing phone from contact");
-
-		beepSDK.choosePhoneFromContact({
-			onSuccess: (contact) => {
-				setContactSelected(contact);
-				console.log("BeepDemo: Contact selected:", contact);
-			},
-			onFail: (error) => {
-				console.error("BeepDemo: Failed to select contact:", error);
-			}
-		});
-	}, []);
 
 	// Method to show date picker
 	const handleDatePicker = useCallback(() => {
@@ -415,18 +400,6 @@ const BeepDemo = () => {
 					</Card>
 				)}
 
-				{contactSelected && (
-					<Card variant="outlined" sx={{ mb: 2, bgcolor: "grey.50" }}>
-						<CardContent>
-							<Typography variant="subtitle2" sx={{ mb: 1 }}>
-								Contact Selected
-							</Typography>
-							<Typography variant="body2">Name: {contactSelected.name}</Typography>
-							<Typography variant="body2">Phone: {contactSelected.phoneNumber}</Typography>
-						</CardContent>
-					</Card>
-				)}
-
 				{dateSelected && (
 					<Card variant="outlined" sx={{ mb: 2, bgcolor: "grey.50" }}>
 						<CardContent>
@@ -508,16 +481,6 @@ const BeepDemo = () => {
 						sx={{ m: 1 }}
 					>
 						Test Alternative HTTP Request
-					</Button>
-
-					<Button
-						onClick={handleChoosePhoneFromContact}
-						variant="contained"
-						color="primary"
-						fullWidth
-						sx={{ m: 1 }}
-					>
-						Choose Phone Contact
 					</Button>
 
 					<Button

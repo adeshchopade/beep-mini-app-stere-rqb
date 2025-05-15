@@ -76,6 +76,22 @@ class BeepMiniAppApi {
     onActionButtonTappedListener = function () { };
     onBackPressedListener = function () { };
 
+    /**
+     * Retrieves the user information.
+     * @param {Object} options - The options for the request.
+     * @param {Function} options.onSuccess - The callback function called when the request is successful.
+     * @param {Function} options.onFail - The callback function called when the request fails.
+     * 
+     * @example
+     * // Success response sample:
+     * {
+     *   "id": 1403,
+     *   "firstName": "Adesh",
+     *   "lastName": "Chopade",
+     *   "phoneNumber": "9686812672",
+     *   "email": "adesh@culvli.com"
+     * }
+     */
     getUser({ onSuccess, onFail }) {
         console.log("BeepSDK: getUser called");
         if (typeof window.flutter_inappwebview === 'undefined') {
@@ -107,6 +123,25 @@ class BeepMiniAppApi {
             });
     }
 
+    /**
+     * Retrieves the user's cards information.
+     * @param {Object} options - The options for the request.
+     * @param {Function} options.onSuccess - The callback function called when the request is successful.
+     * @param {Function} options.onFail - The callback function called when the request fails.
+     * 
+     * @example
+     * // Success response sample:
+     * {
+     *   "cards": [
+     *     {
+     *       "can": "6378059900462120",
+     *       "expiry": "2024-12-31 00:00:00.000Z",
+     *       "status": "ACTIVE",
+     *       "balance": 6197.49
+     *     }
+     *   ]
+     * }
+     */
     getCards({ onSuccess, onFail }) {
         console.log("BeepSDK: getCards called");
         if (typeof window.flutter_inappwebview === 'undefined') {
@@ -138,6 +173,33 @@ class BeepMiniAppApi {
             });
     }
 
+    /**
+     * Requests a reference number for payment.
+     * @param {Object} options - The options for the request.
+     * @param {string} options.merchantCode - The merchant code.
+     * @param {string} options.product - The product description.
+     * @param {number} options.amount - The payment amount.
+     * @param {string} options.notifyUrl - The URL to notify after payment.
+     * @param {Function} options.onSuccess - The callback function called when the request is successful.
+     * @param {Function} options.onFail - The callback function called when the request fails.
+     * 
+     * @example
+     * // Success response sample:
+     * {
+     *   "referenceNumber": "2505159J2B89nq",
+     *   "processingFee": 15,
+     *   "totalAmount": 515,
+     *   "paymentId": ""
+     * }
+     * 
+     * // Error response sample:
+     * {
+     *   "error": {
+     *     "code": -1,
+     *     "errorMessage": "Invalid merchant_code"
+     *   }
+     * }
+     */
     requestReferenceNumber({ merchantCode, product, amount, notifyUrl, onSuccess, onFail }) {
         console.log("BeepSDK: requestReferenceNumber called", { merchantCode, product, amount, notifyUrl });
         if (typeof window.flutter_inappwebview === 'undefined') {
@@ -169,7 +231,34 @@ class BeepMiniAppApi {
             });
     }
 
-    requestPayment({ type = 'CHECKOUT', amount, processingFee, referenceNumber, onSuccess }) {
+    /**
+     * Requests a payment transaction.
+     * @param {Object} options - The options for the request.
+     * @param {string} [options.type='CHECKOUT'] - The payment type.
+     * @param {number} options.amount - The payment amount.
+     * @param {number} options.processingFee - The processing fee amount.
+     * @param {string} options.referenceNumber - The reference number.
+     * @param {Function} options.onSuccess - The callback function called when the request is successful.
+     * @param {Function} options.onFail - The callback function called when the request fails.
+     * 
+     * @example
+     * // Success response sample:
+     * {
+     *   "status": "success",
+     *   "amount": 500,
+     *   "reference_number": "AFPI-2025-05-14-REFNO-1747249931442",
+     *   "balance": 703643.51
+     * }
+     * 
+     * // Error response sample:
+     * {
+     *   "status": "failed",
+     *   "amount": 500,
+     *   "reference_number": null,
+     *   "balance": 0
+     * }
+     */
+    requestPayment({ type = 'CHECKOUT', amount, processingFee, referenceNumber, onSuccess, onFail }) {
         console.log("BeepSDK: requestPayment called", { type, amount, processingFee, referenceNumber });
         if (typeof window.flutter_inappwebview === 'undefined') {
             console.error("BeepSDK: flutter_inappwebview is not available when calling requestPayment");
@@ -188,12 +277,30 @@ class BeepMiniAppApi {
             })
             .catch(function(error) {
                 console.error("BeepSDK: Error in requestPayment", error);
-                if (onSuccess) {
-                    onSuccess({ status: "ERROR", message: error.toString() });
+                if (onFail) {
+                    onFail({ status: "ERROR", message: error.toString() });
                 }
             });
     }
 
+    /**
+     * Shows a dialog with confirm and dismiss options.
+     * @param {Object} options - The options for the dialog.
+     * @param {string} options.title - The dialog title.
+     * @param {string} options.description - The dialog description.
+     * @param {string} options.confirmButtonTitle - The confirm button text.
+     * @param {string} options.dismissButtonTitle - The dismiss button text.
+     * @param {Function} options.onConfirmPressed - The callback function called when confirm is pressed.
+     * @param {Function} options.onDismissPressed - The callback function called when dismiss is pressed.
+     * 
+     * @example
+     * // Result is a boolean: true for confirm, false for dismiss
+     * // For example, when user confirms:
+     * true
+     * 
+     * // For example, when user dismisses:
+     * false
+     */
     showDialog({ title, description, confirmButtonTitle, dismissButtonTitle, onConfirmPressed, onDismissPressed }) {
         console.log("BeepSDK: showDialog called", { title, description, confirmButtonTitle, dismissButtonTitle });
         if (typeof window.flutter_inappwebview === 'undefined') {
@@ -287,6 +394,16 @@ class BeepMiniAppApi {
             });
     }
 
+    /**
+     * Shows a loading indicator.
+     * @param {Object} [options] - The options for the request.
+     * @param {Function} [options.onSuccess] - The callback function called when the request is successful.
+     * @param {Function} [options.onFail] - The callback function called when the request fails.
+     * 
+     * @example
+     * // Success response sample:
+     * true
+     */
     showLoading({ onSuccess, onFail } = {}) {
         console.log("BeepSDK: showLoading called");
         if (typeof window.flutter_inappwebview === 'undefined') {
@@ -318,6 +435,16 @@ class BeepMiniAppApi {
             });
     }
 
+    /**
+     * Hides the loading indicator.
+     * @param {Object} [options] - The options for the request.
+     * @param {Function} [options.onSuccess] - The callback function called when the request is successful.
+     * @param {Function} [options.onFail] - The callback function called when the request fails.
+     * 
+     * @example
+     * // Success response sample:
+     * true
+     */
     hideLoading({ onSuccess, onFail } = {}) {
         console.log("BeepSDK: hideLoading called");
         if (typeof window.flutter_inappwebview === 'undefined') {
@@ -412,6 +539,21 @@ class BeepMiniAppApi {
             });
     }
 
+    /**
+     * Opens a date picker.
+     * @param {Object} options - The options for the date picker.
+     * @param {string} options.format - The date format (e.g., 'yyyy-MM-dd').
+     * @param {string} options.minimumDate - The minimum selectable date.
+     * @param {string} options.maximumDate - The maximum selectable date.
+     * @param {Function} options.onSuccess - The callback function called when date is selected.
+     * @param {Function} options.onFail - The callback function called when selection fails.
+     * 
+     * @example
+     * // Success response sample:
+     * {
+     *   "date": "2024-01-31"
+     * }
+     */
     datePicker({ format, minimumDate, maximumDate, onSuccess, onFail }) {
         console.log("BeepSDK: datePicker called", { format, minimumDate, maximumDate });
         if (typeof window.flutter_inappwebview === 'undefined') {
@@ -507,6 +649,15 @@ class BeepMiniAppApi {
             });
     }
     
+    /**
+     * Sets the app bar title.
+     * @param {Object} options - The options for the app bar title.
+     * @param {string} options.title - The title text.
+     * 
+     * @example
+     * // Response sample:
+     * null
+     */
     appBarTitle({ title }) {
         console.log("BeepSDK: appBarTitle called", { title });
         if (typeof window.flutter_inappwebview === 'undefined') {

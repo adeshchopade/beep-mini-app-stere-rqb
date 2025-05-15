@@ -56,40 +56,114 @@ export const getMiniApp = () => {
   }
 };
 
-// Export individual method implementations for easy access
-export const getUserImplementation = getImplementation('getUser');
-export const getCardsImplementation = getImplementation('getCards');
-export const requestReferenceNumberImplementation = getImplementation('requestReferenceNumber');
-export const requestPaymentImplementation = getImplementation('requestPayment');
-export const showDialogImplementation = getImplementation('showDialog');
-export const chooseImageFromFileImplementation = getImplementation('chooseImageFromFile');
-export const saveImageImplementation = getImplementation('saveImage');
-export const showLoadingImplementation = getImplementation('showLoading');
-export const hideLoadingImplementation = getImplementation('hideLoading');
-export const httpRequestImplementation = getImplementation('httpRequest');
-export const choosePhoneFromContactImplementation = getImplementation('choosePhoneFromContact');
-export const datePickerImplementation = getImplementation('datePicker');
-export const actionButtonImplementation = getImplementation('actionButton');
-export const onBackPressedImplementation = getImplementation('onBackPressed');
-export const closeMiniAppImplementation = getImplementation('closeMiniApp');
-export const appBarTitleImplementation = getImplementation('appBarTitle');
-
-// Export an object with all method implementations
+/**
+ * The beepSDK object provides a unified API for both real and mock implementations.
+ * It automatically selects the appropriate implementation based on the environment.
+ * 
+ * In browser environments, it uses mock implementations for testing and development.
+ * In the Beep app WebView, it uses the real SDK implementations.
+ * 
+ * Note: Some methods like getCards and httpRequest are hardcoded to use mock implementations
+ * in this example for demonstration purposes.
+ */
 export const beepSDK = {
-  getUser: getUserImplementation,
-  getCards: getCardsImplementation,
-  requestReferenceNumber: requestReferenceNumberImplementation,
-  requestPayment: requestPaymentImplementation,
-  showDialog: showDialogImplementation,
-  chooseImageFromFile: chooseImageFromFileImplementation,
-  saveImage: saveImageImplementation,
-  showLoading: showLoadingImplementation,
-  hideLoading: hideLoadingImplementation,
-  httpRequest: httpRequestImplementation,
-  choosePhoneFromContact: choosePhoneFromContactImplementation,
-  datePicker: datePickerImplementation,
-  actionButton: actionButtonImplementation,
-  onBackPressed: onBackPressedImplementation,
-  closeMiniApp: closeMiniAppImplementation,
-  appBarTitle: appBarTitleImplementation,
+  /**
+   * Retrieves the user information.
+   * @see {beep.getUser}
+   */
+  getUser: getImplementation('getUser'),
+  
+  /**
+   * Retrieves the user's cards information.
+   * Note: Currently using mock implementation regardless of environment.
+   * @see {beepSDKMock.getCards}
+   */
+  // getCards: getImplementation('getCards'),
+  getCards: beepSDKMock.getCards,
+  
+  /**
+   * Requests a reference number for payment.
+   * @see {beep.requestReferenceNumber}
+   */
+  requestReferenceNumber: getImplementation('requestReferenceNumber'),
+  
+  /**
+   * Requests a payment transaction.
+   * @see {beep.requestPayment}
+   */
+  requestPayment: getImplementation('requestPayment'),
+  
+  /**
+   * Shows a dialog with confirm and dismiss options.
+   * @see {beep.showDialog}
+   */
+  showDialog: getImplementation('showDialog'),
+  
+  /**
+   * Allows user to choose image from file.
+   * @see {beep.chooseImageFromFile}
+   */
+  chooseImageFromFile: getImplementation('chooseImageFromFile'),
+  
+  /**
+   * Saves an image.
+   * @see {beep.saveImage}
+   */
+  saveImage: getImplementation('saveImage'),
+  
+  /**
+   * Shows a loading indicator.
+   * @see {beep.showLoading}
+   */
+  showLoading: getImplementation('showLoading'),
+  
+  /**
+   * Hides the loading indicator.
+   * @see {beep.hideLoading}
+   */
+  hideLoading: getImplementation('hideLoading'),
+  
+  /**
+   * Makes an HTTP request.
+   * Note: Currently using mock implementation regardless of environment.
+   * @see {beepSDKMock.httpRequest}
+   */
+  // httpRequest: getImplementation('httpRequest'),
+  httpRequest: beepSDKMock.httpRequest,
+  
+  /**
+   * Allows user to choose a phone number from contacts.
+   * @see {beep.choosePhoneFromContact}
+   */
+  choosePhoneFromContact: getImplementation('choosePhoneFromContact'),
+  
+  /**
+   * Opens a date picker.
+   * @see {beep.datePicker}
+   */
+  datePicker: getImplementation('datePicker'),
+  
+  /**
+   * Sets up an action button in the app bar.
+   * @see {beep.actionButton}
+   */
+  actionButton: getImplementation('actionButton'),
+  
+  /**
+   * Handles back button press events.
+   * @see {beep.onBackPressed}
+   */
+  onBackPressed: getImplementation('onBackPressed'),
+  
+  /**
+   * Closes the mini app.
+   * @see {beep.closeMiniApp}
+   */
+  closeMiniApp: getImplementation('closeMiniApp'),
+  
+  /**
+   * Sets the app bar title.
+   * @see {beep.appBarTitle}
+   */
+  appBarTitle: getImplementation('appBarTitle'),
 }; 

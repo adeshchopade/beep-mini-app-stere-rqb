@@ -40,10 +40,13 @@ export const getEnv = (envValue, defaultValue = "") => {
  */
 export const ENV = {
 	// API Configuration
+	STERE_API_URL: getEnv(process.env.REACT_APP_STERE_API_URL, "https://sandbox-cluster.e2e.api.stere.io/staging/sia-sandbox-1"),
+	STERE_API_KEY: getEnv(process.env.REACT_APP_STERE_API_KEY, ""),
 	BEEP_API_URL: getEnv(process.env.REACT_APP_BEEP_API_URL, "http://localhost:8000"),
+	BEEP_MERCHANT_CODE: getEnv(process.env.REACT_APP_BEEP_MERCHANT_CODE, ""),
 
 	// Application Settings
-	APP_NAME: getEnv(process.env.REACT_APP_APP_NAME, "Beep Mini App"),
+	APP_NAME: getEnv(process.env.REACT_APP_APP_NAME, "Beep Protect"),
 	VERSION: getEnv(process.env.REACT_APP_VERSION, "1.0.0"),
 	DEBUG_MODE: getEnv(process.env.REACT_APP_DEBUG_MODE, false),
 

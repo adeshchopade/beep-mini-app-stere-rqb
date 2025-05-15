@@ -23,6 +23,7 @@ The following environment files are used:
 | Variable | Description | Example |
 |----------|-------------|---------|
 | `REACT_APP_ENVIRONMENT` | Current environment name | `development`, `production`, `staging` |
+| `REACT_APP_STERE_API_URL` | The base URL for the Stere API | `https://sandbox-cluster.e2e.api.stere.io/staging/sia-sandbox-1` |
 | `REACT_APP_BEEP_API_URL` | The base URL for the Beep API | `https://api.beep.com.ph` |
 | `REACT_APP_DEBUG_MODE` | Enable/disable debug mode | `true` or `false` |
 | `REACT_APP_APP_NAME` | Name of the app | `Beep Mini App` |
