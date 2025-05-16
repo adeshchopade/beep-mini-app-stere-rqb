@@ -63,8 +63,8 @@ export const useCheckout = (pageParams, navigateTo) => {
 
   const requestPaymentReference = (quoteId, amount) => {
     beepSDK.requestReferenceNumber({
-      merchantCode: ENV.BEEP_MERCHANT_CODE,
-      product: "beep™ Protect Quote - " + quoteId,
+      merchantCode: String(ENV.BEEP_MERCHANT_CODE),
+      product: "Beep Protect Quote - " + quoteId,
       amount: amount,
       notifyUrl: "",
       onSuccess: (referenceResponse) => {
